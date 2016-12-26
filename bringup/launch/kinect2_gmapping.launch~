@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+
+<launch>	
+	<!-- start kinect2-->            
+	<include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch">
+		<arg name="base_name"         value="kinect2"/>
+		<arg name="sensor"            value=""/>
+		<arg name="publish_tf"        value="true"/>
+		<arg name="base_name_tf"      value="kinect2"/>
+		<arg name="fps_limit"         value="-1.0"/>
+		<arg name="calib_path"        value="$(find kinect2_bridge)/data/"/>
+		<arg name="use_png"           value="false"/>
+		<arg name="jpeg_quality"      value="90"/>
+		<arg name="png_level"         value="1"/>
+		<arg name="depth_method"      value="default"/>
+		<arg name="depth_device"      value="-1"/>
+		<arg name="reg_method"        value="default"/>
+		<arg name="reg_device"        value="-1"/>
+		<arg name="max_depth"         value="12.0"/>
+		<arg name="min_depth"         value="0.1"/>
+		<arg name="queue_size"        value="5"/>
+		<arg name="bilateral_filter"  value="true"/>
+		<arg name="edge_aware_filter" value="true"/>
+		<arg name="worker_threads"    value="4"/>
+	</include>  
+     
+  <!-- Run the depthimage_to_laserscan node -->
+  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" output="screen">
+  	<!--输入图像-->
+    <remap from="image" to="/kinect2/qhd/image_depth_rect"/>
+    <!--相关图像的相机信息。通常不需要重新变形，因为camera_info将从与图像相同的命名空间订阅。-->
+    <remap from="camera_info" to="/kinect2/qhd/camera_info" />
+    <!--输出激光数据的话题-->
+    <remap from="scan" to="/scan" /> 
+	
+		<!--激光扫描的帧id。对于来自具有Z向前的“光学”帧的点云，该值应该被设置为具有X向前和Z向上的相应帧。-->
+    <param name="output_frame_id" value="/kinect2_depth_frame"/>
+    <!--用于生成激光扫描的像素行数。对于每一列，扫描将返回在图像中垂直居中的那些像素的最小值。-->
+    <param name="scan_height" value="30"/>
+    <!--返回的最小范围（以米为单位）。小于该范围的输出将作为-Inf输出。-->
+    <param name="range_min" value="0.45"/>
+    <!--返回的最大范围（以米为单位）。大于此范围将输出为+ Inf。-->
+    <param name="range_max" value="8.00"/>
+  </node>
+
+	<!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms -->  
+  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link" args="0 0 0.5 0 0 0 base_footprint base_link 50" />
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="0 0 0.5 0 0 0 base_link laser 50" />
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_kinect2laser" args="0 0 0.5 0 0 0 base_link kinect2_depth_frame 50" />
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_kinect2_link" args="0 0 0.5 -1.57 0 -1.57 base_link kinect2_link 50" />
+  
+	<!--start gmapping node -->
+	<node pkg="gmapping" type="slam_gmapping" name="simple_gmapping" output="screen">
+		<param name="map_update_interval" value="5.0"/>  
+		<param name="maxUrange" value="5.0"/> 
+		<param name="maxRange" value="6.0"/> 
+		<param name="sigma" value="0.05"/>  
+		<param name="kernelSize" value="1"/>  
+		<param name="lstep" value="0.05"/>  
+		<param name="astep" value="0.05"/>  
+		<param name="iterations" value="5"/>  
+		<param name="lsigma" value="0.075"/>  
+		<param name="ogain" value="3.0"/>  
+		<param name="lskip" value="0"/>  
+		<param name="minimumScore" value="50"/>  
+		<param name="srr" value="0.1"/>  
+		<param name="srt" value="0.2"/>  
+		<param name="str" value="0.1"/>  
+		<param name="stt" value="0.2"/>  
+		<param name="linearUpdate" value="1.0"/>  
+		<param name="angularUpdate" value="0.5"/>  
+		<param name="temporalUpdate" value="3.0"/>  
+		<param name="resampleThreshold" value="0.5"/>  
+		<param name="particles" value="50"/>  
+		<param name="xmin" value="-5.0"/>  
+		<param name="ymin" value="-5.0"/>  
+		<param name="xmax" value="5.0"/>  
+		<param name="ymax" value="5.0"/>  
+		<param name="delta" value="0.05"/>  
+		<param name="llsamplerange" value="0.01"/>  
+		<param name="llsamplestep" value="0.01"/>  
+		<param name="lasamplerange" value="0.005"/>  
+		<param name="lasamplestep" value="0.005"/>  
+	</node>
+	
+	<!--start serial-port and odometry node-->
+	<node name="base_controller" pkg="base_controller" type="base_controller"/>
+
+	<!--start rviz view -->
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(find bringup)/rviz/gmapping.rviz" />-->
+
+
+	<!--start keyboard control node-->
+	<!--<node name="teleop" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py"/>-->
+
+</launch>

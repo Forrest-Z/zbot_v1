@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<launch>
+	<!--start rplidar driver node -->
+	<include file="$(find rplidar_ros)/launch/rplidar.launch" />
+
+	<!--start gmapping node -->
+	<node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0 base_link laser 50" />
+	<node pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0 0 0 0 0 0 base_footprint base_link 50" />
+
+	<node pkg="gmapping" type="slam_gmapping" name="simple_gmapping" output="screen">
+		<param name="map_update_interval" value="5.0"/>  
+		<param name="maxUrange" value="5.0"/> 
+		<param name="maxRange" value="6.0"/> 
+		<param name="sigma" value="0.05"/>  
+		<param name="kernelSize" value="1"/>  
+		<param name="lstep" value="0.05"/>  
+		<param name="astep" value="0.05"/>  
+		<param name="iterations" value="5"/>  
+		<param name="lsigma" value="0.075"/>  
+		<param name="ogain" value="3.0"/>  
+		<param name="lskip" value="0"/>  
+		<param name="minimumScore" value="50"/>  
+		<param name="srr" value="0.1"/>  
+		<param name="srt" value="0.2"/>  
+		<param name="str" value="0.1"/>  
+		<param name="stt" value="0.2"/>  
+		<param name="linearUpdate" value="1.0"/>  
+		<param name="angularUpdate" value="0.5"/>  
+		<param name="temporalUpdate" value="3.0"/>  
+		<param name="resampleThreshold" value="0.5"/>  
+		<param name="particles" value="50"/>  
+		<param name="xmin" value="-5.0"/>  
+		<param name="ymin" value="-5.0"/>  
+		<param name="xmax" value="5.0"/>  
+		<param name="ymax" value="5.0"/>  
+		<param name="delta" value="0.05"/>  
+		<param name="llsamplerange" value="0.01"/>  
+		<param name="llsamplestep" value="0.01"/>  
+		<param name="lasamplerange" value="0.005"/>  
+		<param name="lasamplestep" value="0.005"/>  
+	</node>
+	<!--start move_base-->
+	<include file="$(find rbx1_nav)/launch/tb_move_base.launch" />
+
+	<!--start serial-port and odometry node-->
+	<node name="base_controller" pkg="base_controller" type="base_controller"/>
+
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(find bringup)/rviz/slam.rviz" />-->
+	<!--<node name="camera" pkg="uvc_camera" type="uvc_camera_node"/>-->
+
+
+	<!--start keyboard control node-->
+	<!--<node name="teleop" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py"/>-->
+
+</launch>

@@ -1,0 +1,11 @@
+<library path="lib/libkinect2_to_laserscan">
+
+  <class name="kinect2_to_laserscan/kinect2_to_laserscan_nodelet"
+	 type="kinect2_to_laserscan::Kinect2ToLaserScanNodelet"
+	 base_class_type="nodelet::Nodelet">
+    <description>
+      Nodelet to convert sensor_msgs/PointCloud2 to sensor_msgs/LaserScans.
+    </description>
+  </class>
+
+</library>

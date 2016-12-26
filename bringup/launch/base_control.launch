@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+	<!--start serial-port and odometry node-->
+	<node name="base_controller" pkg="base_controller" type="base_controller"/>
+
+	<!--start keyboard control node-->
+	<node name="keyboard_teleop_zbot" pkg="keyboard_teleop_zbot" type="keyboard_teleop_zbot.py"/>
+</launch>

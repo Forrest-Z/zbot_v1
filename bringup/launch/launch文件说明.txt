@@ -1,0 +1,7 @@
+base_control.launch	启动小车底盘
+keyboard_teleop.launch	键盘控制小车
+rplidar_gmapping.launch	激光雷达建图
+rplidar_slam.launch	激光雷达建图，导航
+kinect2_depthimage_to_laserscan.launch	启动Kinect2，将深度图转激光数据
+kinect2_pointcloud_to_laserscan.launch	启动Kinect2，将点云转激光数据
+kinect2_gmapping.launch	Kinect2建图

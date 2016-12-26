@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+	<!--start keyboard control node-->
+	<node name="keyboard_teleop_zbot" pkg="keyboard_teleop_zbot" type="keyboard_teleop_zbot.py"/>
+</launch>

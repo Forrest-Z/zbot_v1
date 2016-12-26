@@ -1,0 +1,37 @@
+<launch>
+	<!-- start sensor-->            
+	<include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch">
+		<arg name="base_name"         value="kinect2"/>
+		<arg name="sensor"            value=""/>
+		<arg name="publish_tf"        value="true"/>
+		<arg name="base_name_tf"      value="kinect2"/>
+		<arg name="fps_limit"         value="-1.0"/>
+		<arg name="calib_path"        value="$(find kinect2_bridge)/data/"/>
+		<arg name="use_png"           value="false"/>
+		<arg name="jpeg_quality"      value="90"/>
+		<arg name="png_level"         value="1"/>
+		<arg name="depth_method"      value="default"/>
+		<arg name="depth_device"      value="-1"/>
+		<arg name="reg_method"        value="default"/>
+		<arg name="reg_device"        value="-1"/>
+		<arg name="max_depth"         value="12.0"/>
+		<arg name="min_depth"         value="0.1"/>
+		<arg name="queue_size"        value="5"/>
+		<arg name="bilateral_filter"  value="true"/>
+		<arg name="edge_aware_filter" value="true"/>
+		<arg name="worker_threads"    value="4"/>
+	</include>  
+     
+  <!-- Run the depthimage_to_laserscan node -->
+  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" output="screen">
+    <remap from="image" to="/kinect2/qhd/image_depth_rect"/>
+    <remap from="camera_info" to="/kinect2/qhd/camera_info" />
+    <remap from="scan" to="/scan" /> 
+
+    <param name="output_frame_id" value="/kinect2_depth_frame"/>
+    <param name="scan_height" value="30"/>
+    <param name="range_min" value="0.45"/>
+    <param name="range_max" value="8.00"/>
+  </node>
+  
+</launch>

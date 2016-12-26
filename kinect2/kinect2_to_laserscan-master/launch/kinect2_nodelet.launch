@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <arg name="camera" default="kinect2" />
+
+    <!-- start sensor-->
+    <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch">
+        <arg name="base_name" default="kinect2"/>
+    </include>
+
+    <!-- push pointcloud_to_laserscan nodelet into sensor's nodelet manager-->
+    <node pkg="nodelet" type="nodelet" name="kinect2_to_laserscan" args="load kinect2_to_laserscan/kinect2_to_laserscan_nodelet $(arg kinect2)_nodelet_manager">
+
+        <remap from="cloud_in" to="$(arg camera)/qhd/points"/>
+        <remap from="scan" to="$(arg camera)/scan"/>
+        <rosparam>
+            target_frame: laser # Change this according to your laser topic
+            transform_tolerance: 0.01
+            min_height: 0.0
+            max_height: 1.0
+
+            angle_min: -1.5708 # -M_PI/2
+            angle_max: 1.5708 # M_PI/2
+            angle_increment: 0.087 # M_PI/360.0
+            scan_time: 0.3333
+            range_min: 0.45
+            range_max: 4.0
+            use_inf: true
+
+            # Concurrency level, affects number of pointclouds queued for processing, thread number governed by nodelet manager
+            # 0 : Detect number of cores
+            # 1 : Single threaded
+            # 2->inf : Parallelism level
+            concurrency_level: 1
+        </rosparam>
+
+    </node>
+
+</launch>

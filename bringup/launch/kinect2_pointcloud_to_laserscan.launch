@@ -1,0 +1,63 @@
+<launch>	
+	<!-- start sensor-->            
+	<include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch">
+		<arg name="base_name"         value="kinect2"/>
+		<arg name="sensor"            value=""/>
+		<arg name="publish_tf"        value="true"/>
+		<arg name="base_name_tf"      value="kinect2"/>
+		<arg name="fps_limit"         value="-1.0"/>
+		<arg name="calib_path"        value="$(find kinect2_bridge)/data/"/>
+		<arg name="use_png"           value="false"/>
+		<arg name="jpeg_quality"      value="90"/>
+		<arg name="png_level"         value="1"/>
+		<arg name="depth_method"      value="default"/>
+		<arg name="depth_device"      value="-1"/>
+		<arg name="reg_method"        value="default"/>
+		<arg name="reg_device"        value="-1"/>
+		<arg name="max_depth"         value="12.0"/>
+		<arg name="min_depth"         value="0.1"/>
+		<arg name="queue_size"        value="5"/>
+		<arg name="bilateral_filter"  value="true"/>
+		<arg name="edge_aware_filter" value="true"/>
+		<arg name="worker_threads"    value="4"/>
+	</include>  
+     
+  <!-- run pointcloud_to_laserscan node -->
+  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+  		<!--输入的点云-->
+      <remap from="cloud_in" to="/kinect2/qhd/points"/>
+      <!--输出的激光话题-->
+      <remap from="scan" to="/scan"/>
+      <rosparam>
+          target_frame: laser # Leave disabled to output scan in pointcloud frame
+          transform_tolerance: 0.01
+          min_height: 0.0
+          max_height: 10.0
+
+          angle_min: -1.5708 # -M_PI/2
+          angle_max: 1.5708 # M_PI/2
+          
+          <!--激光扫描的分辨率-->
+          <!--angle_increment: 0.087 # M_PI/360.0-->
+          angle_increment: 0.0435 # M_PI/360.0
+          
+          scan_time: 0.3333
+          range_min: 0.45
+          range_max: 8.0
+          use_inf: true
+
+          # Concurrency level, affects number of pointclouds queued for processing and number of threads used
+          # 0 : Detect number of cores
+          # 1 : Single threaded
+          # 2->inf : Parallelism level
+          concurrency_level: 1
+      </rosparam>
+  </node>
+  
+  <!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms -->  
+  <!-- node pkg="tf" type="static_transform_publisher" name="odom_to_base_footprint" args="0 0 0 0 0 0 /odom /base_footprint 50" / -->
+  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_laser" args="0 0 0.5 0 0 0 /base_footprint /laser 50" />
+  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_kinect2laser" args="0 0 0.5 0 0 0 /base_footprint /kinect2_depth_frame 50" />
+  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_kinect2_link" args="0 0 0.5 -1.57 0 -1.57 /base_footprint /kinect2_link 50" />
+  
+</launch>
